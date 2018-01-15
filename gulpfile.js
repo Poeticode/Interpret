@@ -11,6 +11,7 @@ var buffer = require('vinyl-buffer');
 var gutil = require("gulp-util");
 var log = require('gulplog');
 var clean = require('gulp-clean');
+// TODO: Delete dest directory with gulp clean
 var paths = {
     pages: ['src/*.html']
 };
@@ -19,7 +20,7 @@ var watchedBrowserify = watchify(browserify({
     basedir: '.',
     debug: true,
     entries: ['src/main.ts'],
-    cache: {},
+    cache: {}, 
     packageCache: {}
 }).plugin(tsify));
 
