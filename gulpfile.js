@@ -12,6 +12,7 @@ var gutil = require("gulp-util");
 var log = require('gulplog');
 var clean = require('gulp-clean');
 // TODO: Delete dest directory with gulp clean
+var init = true;
 var paths = {
     pages: ['src/*.html']
 };
@@ -24,12 +25,26 @@ var watchedBrowserify = watchify(browserify({
     packageCache: {}
 }).plugin(tsify));
 
-gulp.task("copy-html", function () {
+gulp.task("clean-js", function() {
+    return gulp.src("dist/*.js", {read: false})
+        .pipe(clean());
+});
+
+gulp.task("clean-html", function() {
+    return gulp.src("dist/*.html", {read: false})
+        .pipe(clean());
+});
+
+gulp.task("copy-html", ["clean-html"], function () {
     return gulp.src(paths.pages)
         .pipe(gulp.dest("dist"));
 });
 
 function bundle() {
+    if (init) {
+        gulp.watch('src/*.html', ["copy-html"]);
+        init = false;
+    }
     return watchedBrowserify
         .bundle()
         .on('error', log.error.bind(log, 'Browserify Error'))
@@ -41,7 +56,7 @@ function bundle() {
         .pipe(gulp.dest("dist"));
 }
 
-gulp.task("default", ["copy-html"], bundle);
+gulp.task("default", ["copy-html", "clean-js"], bundle);
 
 watchedBrowserify.on("update", bundle);
 watchedBrowserify.on("log", gutil.log);
